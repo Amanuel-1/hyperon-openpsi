@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Callable, List, Dict, Any, Union
 import inspect
 
-# Standard log levels
+
 class LogLevel(Enum):
     DEBUG = "debug"
     INFO = "info"
@@ -13,14 +13,14 @@ class LogLevel(Enum):
     ERROR = "error"
     CRITICAL = "critical"
 
-# Base event class
+
 class LogEvent:
     def __init__(self, event_type: str, timestamp: datetime, **kwargs):
         self.event_type = event_type
         self.timestamp = timestamp
         self.data = kwargs
 
-# Specific event class for modulator updates
+
 class ModulatorUpdateEvent(LogEvent):
     def __init__(self, modulator_name:str,previous_value: float, current_value: float):
         super().__init__("modulator_update", datetime.now(), 
@@ -61,7 +61,7 @@ class EventLogger:
             if tasks:  # Only gather if we have async tasks
                 await asyncio.gather(*tasks)
             
-    # Convenience methods for standard logging
+
     def log(self, level: LogLevel, message: str):
         event = LogEvent(level.value, datetime.now(), message=message)
         self.trigger_event(event)
@@ -70,7 +70,7 @@ class EventLogger:
         event = ModulatorUpdateEvent(modulator_name,previous_value, current_value)
         self.trigger_event(event)
 
-# Example handlers
+
 def console_handler(event: LogEvent):
     if event.event_type in [level.value for level in LogLevel]:
         print(f"[{event.timestamp}] {event.event_type.upper()}: {event.data['message']}")
@@ -86,7 +86,7 @@ def modulator_handler(event: LogEvent):
         print(f"[{event.timestamp}] MODULATOR_UPDATED: {event.data['modulator_name']} {event.data['previous_value']} -> "
               f"{event.data['current_value']} (diff: {diff})")
 
-# Example usage
+
 logger = EventLogger()
 logger.register_handler(LogLevel.INFO, console_handler)
 logger.register_handler(LogLevel.INFO, async_console_handler)
